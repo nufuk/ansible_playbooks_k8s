@@ -1,0 +1,21 @@
+---
+- name: Install Kubernetes Cluster
+  hosts: all
+  become: true
+  gather_facts: true
+  roles:
+    - k8s-common
+
+- name: Configure Kubernetes Control Plane
+  hosts: control-plane
+  become: true
+  gather_facts: true
+  roles:
+    - k8s-control-plane
+
+- name: Configure Kubernetes Workers
+  hosts: workers
+  become: true
+  gather_facts: true
+  roles:
+    - k8s-worker

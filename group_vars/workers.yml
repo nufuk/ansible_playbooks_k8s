@@ -1,0 +1,4 @@
+---
+k8s_worker_ports:
+  - "10250/tcp"  # Kubelet API
+  - "30000-32767/tcp"  # NodePort Services

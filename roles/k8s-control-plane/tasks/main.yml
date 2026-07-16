@@ -1,0 +1,60 @@
+---
+    - name: Update dnf package cache
+      ansible.builtin.dnf:
+        update_cache: yes
+
+    - name: Ports freischalten
+      ansible.posix.firewalld:
+        port: "{{ item }}"
+        state: enabled
+        zone: public
+        permanent: true
+        immediate: true
+      loop: "{{ k8s_control_plane_ports }}"
+
+    - name: Kubernetes Control Plane initialisieren
+      ansible.builtin.command:
+        cmd: >-
+          kubeadm init
+          --pod-network-cidr={{ pod_network_cidr }}
+          --apiserver-advertise-address={{ ansible_facts.default_ipv4.address }}
+          --control-plane-endpoint={{ custom_hostname }}:6443
+          --ignore-preflight-errors=NumCPU
+        creates: /etc/kubernetes/admin.conf
+      register: kubeadm_init_result
+      become: true
+
+    - name: kubeconfig für kubectl einrichten
+      ansible.builtin.shell:
+        cmd: |
+          mkdir -p $HOME/.kube
+          cp /etc/kubernetes/admin.conf $HOME/.kube/config
+          chown $(id -u):$(id -g) $HOME/.kube/config
+      become: true
+      when: kubeadm_init_result.changed
+
+    - name: Download the official Flannel manifest
+      ansible.builtin.get_url:
+        url: "{{ flannel_manifest_url }}"
+        dest: "/tmp/kube-flannel.yml"
+        mode: '0644'
+
+    - name: Apply Flannel manifest via kubectl
+      ansible.builtin.shell: "sudo kubectl apply -f /tmp/kube-flannel.yml"
+      register: kubectl_apply
+      changed_when: "'created' in kubectl_apply.stdout or 'configured' in kubectl_apply.stdout"
+
+    - name: Create .kube in home directoty
+      ansible.builtin.file:
+        path: /home/nufuk/.kube
+        state: directory
+        mode: 0755
+
+    - name: Copy configuration file with sudo permissions
+      ansible.builtin.copy:
+        src: /etc/kubernetes/admin.conf
+        dest: /home/nufuk/.kube/config
+        remote_src: true
+        owner: nufuk
+        group: nufuk
+      become: true

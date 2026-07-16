@@ -1,0 +1,7 @@
+---
+- name: Setup Kubernetes Workers
+  hosts: workers
+  become: true
+  gather_facts: true
+  roles:
+    - k8s-worker

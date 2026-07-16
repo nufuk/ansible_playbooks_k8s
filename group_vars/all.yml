@@ -1,0 +1,22 @@
+---
+# Kubernetes cluster configuration
+k8s_version: "1.36"
+k8s_cgroup_driver: "systemd"
+service_cidr: "10.96.0.0/12"
+
+# Container runtime
+container_runtime: "containerd"
+
+# Network plugin
+# network_plugin: 
+
+# Node configuration
+disable_swap: true
+enable_ipvs: false
+
+# Containerd configuration
+# Backup settings
+etcd_backup_enabled: true
+backup_retention_days: 7
+
+kubernetes_version: "v1.36"

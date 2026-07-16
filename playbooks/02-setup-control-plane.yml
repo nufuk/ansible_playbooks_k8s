@@ -1,0 +1,7 @@
+---
+- name: Setup Kubernetes Control Plane
+  hosts: control-plane
+  become: true
+  gather_facts: true
+  roles:
+    - k8s-control-plane

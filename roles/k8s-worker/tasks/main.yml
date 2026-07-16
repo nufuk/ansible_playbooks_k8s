@@ -1,0 +1,21 @@
+---
+    - name: Update dnf package cache
+      ansible.builtin.dnf:
+        update_cache: yes
+
+    - name: Ports freischalten
+      ansible.posix.firewalld:
+        port: "{{ item }}"
+        state: enabled
+        zone: public
+        permanent: true
+        immediate: true
+      loop: "{{ k8s_worker_ports }}"
+
+    - name: Get kubeadm join command
+      command: sudo kubeadm token create --print-join-command
+      delegate_to: 192.168.1.10
+      register: join_command
+
+    - name: Execute join command
+      command: "{{ join_command.stdout }} --ignore-preflight-errors=NumCPU,Mem"

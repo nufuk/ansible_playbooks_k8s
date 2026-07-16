@@ -1,0 +1,16 @@
+---
+# Firewall ports
+k8s_control_plane_ports:
+  - "6443/tcp"   # Kubernetes API server
+  - "2379-2380/tcp"  # etcd server client API
+  - "10250/tcp"  # Kubelet API
+  - "10251/tcp"  # kube-scheduler
+  - "10252/tcp"  # kube-controller-manager
+  - "10257/tcp" # Controller Manager
+  - "10259/tcp" # Scheduler
+  - "4244/tcp"   # Hubble Relay
+  - "30000-32767/tcp"  # NodePort Services
+
+pod_network_cidr: "10.244.0.0/16"
+
+flannel_manifest_url: "https://github.com/flannel-io/flannel/releases/latest/download/kube-flannel.yml"

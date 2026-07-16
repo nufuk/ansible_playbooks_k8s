@@ -1,0 +1,159 @@
+---
+    - name: Update dnf cache
+      ansible.builtin.dnf:
+        update_cache: yes
+
+    - name: install packages with dnf
+      ansible.builtin.dnf:
+        name: 
+          - python3-firewall
+          - firewalld
+          - kernel-modules-extra
+          - dnf-plugins-core
+          - vim
+          - wget
+        state: latest
+        update_cache: yes
+
+    - name: Remove update_etc_hosts module from cloud-init modules
+      lineinfile:
+        path: /etc/cloud/cloud.cfg
+        regexp: '^\s*-\s*update_etc_hosts\s*$'
+        state: absent
+      become: true
+
+    - name: Add manage_etc_hosts:false to cloud-init config
+      lineinfile:
+        path: /etc/cloud/cloud.cfg
+        line: "manage_etc_hosts: false"
+        insertafter: EOF
+        state: present
+      become: true
+
+    - name: Set system hostname
+      ansible.builtin.hostname:
+        name: "{{ custom_hostname }}"
+
+    - name: Reboot the machine and wait for it to return
+      ansible.builtin.reboot:
+        msg: "Reboot initiated by Ansible"
+        connect_timeout: 5
+        reboot_timeout: 600
+        pre_reboot_delay: 0
+
+    - name: Add all inventory hosts to /etc/hosts
+      lineinfile:
+        path: /etc/hosts
+        line: "{{ item }} {{ hostvars[item].custom_hostname }}"
+        regexp: "^{{ item }}\\s+"
+        state: present
+        backup: yes
+      loop: "{{ query('inventory_hostnames', 'all') }}"
+      become: true
+
+    - name: K8s-Konfigurationsdatei für Module erstellen
+      ansible.builtin.copy:
+        dest: /etc/modules-load.d/k8s.conf
+        content: |
+          overlay
+          br_netfilter
+        mode: '0644'
+
+    - name: Kernel-Module sofort laden
+      community.general.modprobe:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - overlay
+        - br_netfilter
+
+    - name: Kernel-Parameter in 99-kubernetes-cri.conf setzen
+      ansible.posix.sysctl:
+        name: "{{ item.key }}"
+        value: "{{ item.value }}"
+        sysctl_file: /etc/sysctl.d/99-kubernetes-cri.conf
+        state: present
+        reload: false 
+      loop:
+        - { key: 'net.bridge.bridge-nf-call-iptables', value: '1' }
+        - { key: 'net.ipv4.ip_forward', value: '1' }
+        - { key: 'net.bridge.bridge-nf-call-ip6tables', value: '1' }
+      register: sysctl_config
+
+    - name: Sysctl-Systemkonfiguration neu laden
+      ansible.builtin.command: sysctl --system
+      when: sysctl_config.changed
+
+    - name: Add Docker CE repository
+      ansible.builtin.yum_repository:
+        name: docker-ce
+        description: Docker CE Stable - $basearch
+        baseurl: https://download.docker.com/linux/centos/$releasever/$basearch/stable
+        enabled: yes
+        gpgcheck: yes
+        gpgkey: https://download.docker.com/linux/centos/gpg
+        repo_gpgcheck: yes
+        module_hotfixes: yes
+
+    - name: install containerd
+      ansible.builtin.dnf:
+        name: 
+          - containerd
+        state: latest
+        update_cache: yes
+
+    - name: Enable and start containerd service 
+      ansible.builtin.systemd_service:
+        name: containerd
+        enabled: true
+        state: started
+      become: true
+
+    - name: Create a new folder
+      ansible.builtin.file:
+        path: /etc/containerd
+        state: directory
+        mode: 0755
+
+    - name: Generate default containerd config
+      ansible.builtin.command:
+        cmd: containerd config default
+      register: containerd_config
+      changed_when: false
+
+    - name: Write containerd configuration with systemd cgroup
+      ansible.builtin.copy:
+        content: "{{ containerd_config.stdout | regex_replace('SystemdCgroup = false', 'SystemdCgroup = true') }}"
+        dest: /etc/containerd/config.toml
+        mode: '0644'
+  
+    - name: restart containerd
+      ansible.builtin.systemd:
+        name: containerd
+        state: restarted
+        daemon_reload: yes
+
+    - name: Add Kubernetes repository
+      ansible.builtin.yum_repository:
+        name: kubernetes
+        description: Kubernetes
+        baseurl: "https://pkgs.k8s.io/core:/stable:/{{ kubernetes_version }}/rpm/"
+        enabled: yes
+        gpgcheck: yes
+        gpgkey: "https://pkgs.k8s.io/core:/stable:/{{ kubernetes_version }}/rpm/repodata/repomd.xml.key"
+
+    - name: Install Kubernetes packages
+      ansible.builtin.dnf:
+        name:
+          - kubeadm
+          - kubelet
+          - kubectl
+        state: present
+        update_cache: yes
+
+    - name: Enable and start kubelet service
+      ansible.builtin.systemd_service:
+        name: kubelet
+        enabled: true
+        state: started
+      become: true
