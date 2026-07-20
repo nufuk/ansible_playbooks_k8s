@@ -10,6 +10,13 @@ k8s_control_plane_ports:
   - "10259/tcp" # Scheduler
   - "4244/tcp"   # Hubble Relay
   - "30000-32767/tcp"  # NodePort Services
+  - "8080/tcp"
+  - "443/tcp"
+  - "80/tcp"
+  - "9443/tcp"
+  - "8472/udp"
+  - "4789/tcp"
+
 
 pod_network_cidr: "10.244.0.0/16"
 
