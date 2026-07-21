@@ -18,6 +18,6 @@ k8s_control_plane_ports:
   - "4789/tcp"
 
 
-pod_network_cidr: "10.244.0.0/16"
+pod_network_cidr: "10.244.0.0/24"
 
 flannel_manifest_url: "https://github.com/flannel-io/flannel/releases/latest/download/kube-flannel.yml"
