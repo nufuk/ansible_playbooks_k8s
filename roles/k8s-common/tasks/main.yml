@@ -1,8 +1,11 @@
 ---
 
-    - name: Clean all DNF cache
+    - name: Distro-sync using only baseos repo
       ansible.builtin.dnf:
-        clean_cache: true
+        name: '*'
+        state: latest
+        disablerepo: '*'
+        enablerepo: baseos
       become: true
 
     - name: Update dnf cache
