@@ -1,7 +1,14 @@
 ---
     - name: Update dnf cache
       ansible.builtin.dnf:
-        update_cache: yes
+        update_cache: true
+
+    - name: Refresh DNF cache and upgrade all packages
+      ansible.builtin.dnf:
+        name: "*"
+        state: latest
+        update_cache: true
+      become: true
 
     - name: install packages with dnf
       ansible.builtin.dnf:
@@ -14,7 +21,7 @@
           - vim
           - wget
         state: latest
-        update_cache: yes
+        update_cache: true
 
     - name: Remove update_etc_hosts module from cloud-init modules
       lineinfile:
@@ -48,7 +55,7 @@
         line: "{{ item }} {{ hostvars[item].custom_hostname }}"
         regexp: "^{{ item }}\\s+"
         state: present
-        backup: yes
+        backup: true
       loop: "{{ query('inventory_hostnames', 'all') }}"
       become: true
 
@@ -90,18 +97,18 @@
         name: docker-ce
         description: Docker CE Stable - $basearch
         baseurl: https://download.docker.com/linux/centos/$releasever/$basearch/stable
-        enabled: yes
-        gpgcheck: yes
+        enabled: true
+        gpgcheck: true
         gpgkey: https://download.docker.com/linux/centos/gpg
-        repo_gpgcheck: yes
-        module_hotfixes: yes
+        repo_gpgcheck: true
+        module_hotfixes: true
 
     - name: install containerd
       ansible.builtin.dnf:
         name: 
           - containerd
         state: latest
-        update_cache: yes
+        update_cache: true
 
     - name: Enable and start containerd service 
       ansible.builtin.systemd_service:
@@ -132,15 +139,15 @@
       ansible.builtin.systemd:
         name: containerd
         state: restarted
-        daemon_reload: yes
+        daemon_reload: true
 
     - name: Add Kubernetes repository
       ansible.builtin.yum_repository:
         name: kubernetes
         description: Kubernetes
         baseurl: "https://pkgs.k8s.io/core:/stable:/{{ kubernetes_version }}/rpm/"
-        enabled: yes
-        gpgcheck: yes
+        enabled: true
+        gpgcheck: true
         gpgkey: "https://pkgs.k8s.io/core:/stable:/{{ kubernetes_version }}/rpm/repodata/repomd.xml.key"
 
     - name: Install Kubernetes packages
@@ -150,7 +157,7 @@
           - kubelet
           - kubectl
         state: present
-        update_cache: yes
+        update_cache: true
 
     - name: Enable and start kubelet service
       ansible.builtin.systemd_service:
