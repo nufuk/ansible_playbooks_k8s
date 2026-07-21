@@ -6,10 +6,12 @@
         state: latest
       become: true
 
-    - name: Update dnf cache
-      ansible.builtin.dnf:
-        update_cache: true
-
+    - name: Reboot the machine for kernel update
+      ansible.builtin.reboot:
+        msg: "Reboot initiated by Ansible"
+        connect_timeout: 5
+        reboot_timeout: 600
+        pre_reboot_delay: 0
     - name: Refresh DNF cache and upgrade all packages
       ansible.builtin.dnf:
         name: "*"
