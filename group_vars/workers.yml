@@ -2,6 +2,11 @@
 k8s_worker_ports:
   - "10250/tcp"  # Kubelet API
   - "30000-32767/tcp"  # NodePort Services
+  - "53/udp" #DNS
+  - "53/tcp" #DNS
+  - "853/tcp" #DNS over tls
+  - "8181/tcp" # coredns ready plugin
+  - "9153/tcp" # Prometheus metrics
   - "8080/tcp"
   - "443/tcp"
   - "80/tcp"

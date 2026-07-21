@@ -10,9 +10,14 @@ k8s_control_plane_ports:
   - "10259/tcp" # Scheduler
   - "4244/tcp"   # Hubble Relay
   - "30000-32767/tcp"  # NodePort Services
-  - "8080/tcp"
-  - "443/tcp"
-  - "80/tcp"
+  - "53/udp" #DNS
+  - "53/tcp" #DNS
+  - "853/tcp" #DNS over tls
+  - "8181/tcp" # coredns ready plugin
+  - "9153/tcp" # Prometheus metrics
+  - "8080/tcp" # default applicationserver
+  - "443/tcp" # default https
+  - "80/tcp" ## default http
   - "9443/tcp"
   - "8472/udp"
   - "4789/tcp"
