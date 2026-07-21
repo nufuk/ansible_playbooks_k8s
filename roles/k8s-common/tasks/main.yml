@@ -1,4 +1,10 @@
 ---
+
+    - name: Clean all DNF cache
+      ansible.builtin.dnf:
+        clean_cache: true
+      become: true
+
     - name: Update dnf cache
       ansible.builtin.dnf:
         update_cache: true
