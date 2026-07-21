@@ -1,11 +1,9 @@
 ---
 
-    - name: Distro-sync using only baseos repo
+    - name: Update the kernel to the latest version
       ansible.builtin.dnf:
-        name: '*'
+        name: kernel
         state: latest
-        disablerepo: '*'
-        enablerepo: baseos
       become: true
 
     - name: Update dnf cache
