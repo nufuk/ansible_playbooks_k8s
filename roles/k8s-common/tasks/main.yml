@@ -16,6 +16,8 @@
           - dnf-plugins-core
           - vim
           - wget
+          - traceroute
+          - bind-utils
         state: latest
         update_cache: true
 

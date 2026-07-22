@@ -21,6 +21,8 @@ k8s_control_plane_ports:
   - "9443/tcp"
   - "8472/udp"
   - "4789/tcp"
+  - "7946/tcp"
+  - "7946/udp"
 
 
 pod_network_cidr: "10.244.0.0/16"
