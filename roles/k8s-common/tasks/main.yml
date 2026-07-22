@@ -4,6 +4,8 @@
       ansible.builtin.dnf:
         name: kernel
         state: latest
+      async: 900
+      poll: 15
       become: true
 
     - name: Reboot the machine for kernel update
@@ -12,6 +14,7 @@
         connect_timeout: 5
         reboot_timeout: 600
         pre_reboot_delay: 0
+
     - name: Refresh DNF cache and upgrade all packages
       ansible.builtin.dnf:
         name: "*"
@@ -57,6 +60,76 @@
         connect_timeout: 5
         reboot_timeout: 600
         pre_reboot_delay: 0
+
+    - name: Remove swap entries from /etc/fstab to persist reboots
+      ansible.posix.mount:
+        name: "{{ item }}"
+        fstype: swap
+        state: absent
+      loop:
+        - swap
+        - none
+      become: true
+
+    - name: Change SELinux to permissive
+      ansible.posix.selinux:
+        state: permissive
+
+    - name: Enable firewalld masquerade
+      ansible.posix.firewalld:
+        masquerade: true
+        state: enabled
+        permanent: true
+        immediate: true
+        zone: public
+      become: true
+
+    - name: Disable NetworkManager DNS processing
+      ansible.builtin.copy:
+        dest: /etc/NetworkManager/conf.d/90-dns-none.conf
+        content: |
+          [main]
+          dns=none
+        owner: root
+        group: root
+        mode: '0644'
+      become: true
+
+    - name: create /etc/resolv.conf
+      ansible.builtin.copy:
+        dest: /etc/NetworkManager/conf.d/90-dns-none.conf
+        content: |
+          nameserver 192.168.178.1
+          nameserver 192.168.1.1
+          nameserver 192.168.178.63
+          search lan
+        owner: root
+        group: root
+        mode: '0644'
+      become: true
+
+    - name: Disable RX and TX offloading on eth0
+      ansible.builtin.ethtool:
+        name: eth0
+        offload:
+          rx: false
+          tx: false
+      become: true
+
+    - name: Disable RX and TX offloading on cni0
+      ansible.builtin.ethtool:
+        name: cni0
+        offload:
+          rx: false
+          tx: false
+      become: true
+
+    - name: Reload NetworkManager
+      ansible.builtin.service:
+        name: NetworkManager
+        state: reloaded
+      become: true
+
 
     - name: Add all inventory hosts to /etc/hosts
       lineinfile:

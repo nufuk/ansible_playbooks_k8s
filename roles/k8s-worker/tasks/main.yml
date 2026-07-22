@@ -19,3 +19,11 @@
 
     - name: Execute join command
       command: "{{ join_command.stdout }} --ignore-preflight-errors=NumCPU,Mem"
+    
+    - name: Disable RX and TX offloading on flannel.1
+      ansible.builtin.ethtool:
+        name: flannel.1
+        offload:
+          rx: false
+          tx: false
+      become: true

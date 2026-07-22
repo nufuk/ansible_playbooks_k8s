@@ -58,3 +58,17 @@
         owner: nufuk
         group: nufuk
       become: true
+
+    - name: Disable RX and TX offloading on flannel.1
+      ansible.builtin.ethtool:
+        name: flannel.1
+        offload:
+          rx: false
+          tx: false
+      become: true
+
+    - name: Patch kube-proxy ConfigMap via kubectl command
+      ansible.builtin.command: >
+        kubectl patch configmap -n kube-system kube-proxy 
+        -p '{"data":{"config.conf":"ipvs:\n  strictARP: true"}}'
+      changed_when: false
