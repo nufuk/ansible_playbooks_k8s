@@ -44,6 +44,17 @@
       register: kubectl_apply
       changed_when: "'created' in kubectl_apply.stdout or 'configured' in kubectl_apply.stdout"
 
+    - name: Download the official metallb manifest
+      ansible.builtin.get_url:
+        url: "{{ metallb_manifest_url }}"
+        dest: "/tmp/metallb-native.yml"
+        mode: '0644'
+
+    - name: Apply Flannel manifest via kubectl
+      ansible.builtin.shell: "sudo kubectl apply -f /tmp/metallb-native.yml"
+      register: kubectl_apply
+      changed_when: "'created' in kubectl_apply.stdout or 'configured' in kubectl_apply.stdout"
+
     - name: Create .kube in home directoty
       ansible.builtin.file:
         path: /home/nufuk/.kube
@@ -70,14 +81,6 @@
         cmd: install -m 555 /tmp/argocd-linux-amd64 /usr/local/bin/argocd
         creates: /usr/local/bin/argocd
       become: true
-
-    #- name: Disable RX and TX offloading on cni0
-    #  ansible.builtin.command: ethtool -K cni0 tx off rx off
-    #  become: true
-
-    #- name: Disable RX and TX offloading on flannel.1
-    #  ansible.builtin.command: ethtool -K flannel.1 tx off rx off
-    #  become: true
 
     - name: Patch kube-proxy ConfigMap via kubectl command
       ansible.builtin.command: >

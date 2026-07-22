@@ -1,0 +1,50 @@
+---
+    - name: Disable NetworkManager DNS processing
+      ansible.builtin.copy:
+        dest: /etc/NetworkManager/conf.d/90-dns-none.conf
+        content: |
+          [main]
+          dns=none
+        owner: root
+        group: root
+        mode: '0644'
+      become: true
+
+    - name: create /etc/resolv.conf
+      ansible.builtin.copy:
+        dest: /etc/resolv.conf
+        content: |
+          nameserver 10.96.0.10
+          nameserver 192.168.178.1
+          nameserver 192.168.1.1
+          nameserver 192.168.178.63
+          search lan
+        owner: root
+        group: root
+        mode: '0644'
+      become: true
+
+    - name: Reload NetworkManager
+      ansible.builtin.service:
+        name: NetworkManager
+        state: reloaded
+      become: true
+
+    - name: Disable RX and TX offloading on eth0
+      ansible.builtin.command: ethtool -K eth0 tx off rx off
+      become: true
+
+    - name: Disable RX and TX offloading on cni0
+      ansible.builtin.command: ethtool -K cni0 tx off rx off
+      become: true
+
+    - name: Disable RX and TX offloading on flannel.1
+      ansible.builtin.command: ethtool -K flannel.1 tx off rx off
+      become: true
+
+    - name: Reboot the machine
+      ansible.builtin.reboot:
+        msg: "Reboot initiated by Ansible"
+        connect_timeout: 5
+        reboot_timeout: 600
+        pre_reboot_delay: 0

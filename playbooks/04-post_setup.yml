@@ -1,0 +1,7 @@
+---
+- name: Make Post setup tasks
+  hosts: workers
+  become: true
+  gather_facts: true
+  roles:
+    - k8s-post-setup

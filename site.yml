@@ -19,3 +19,10 @@
   gather_facts: true
   roles:
     - k8s-worker
+
+- name: Run post setup tasks
+  hosts: all
+  become: true
+  gather_facts: true
+  roles:
+    - k8s-worker
