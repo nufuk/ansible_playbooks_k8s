@@ -1,4 +1,18 @@
 ---
+- name: Update Kernel control-plane
+  hosts: control-plane
+  become: true
+  gather_facts: true
+  roles:
+    - k8s-pre-run
+
+- name: Update Kernel workers
+  hosts: workers
+  become: true
+  gather_facts: true
+  roles:
+    - k8s-pre-run
+
 - name: Install Kubernetes Cluster
   hosts: all
   become: true

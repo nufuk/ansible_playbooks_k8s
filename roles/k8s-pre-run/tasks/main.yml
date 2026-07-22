@@ -1,0 +1,17 @@
+---
+    - name: Update the kernel to the latest version
+      ansible.builtin.dnf:
+        name: kernel
+        state: latest
+        update_cache: true
+      async: 900
+      poll: 0
+      register: dnf_async
+      become: true
+
+    - name: Reboot the machine for kernel update
+      ansible.builtin.reboot:
+        msg: "Reboot initiated by Ansible"
+        connect_timeout: 5
+        reboot_timeout: 600
+        pre_reboot_delay: 0
