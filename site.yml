@@ -39,4 +39,4 @@
   become: true
   gather_facts: true
   roles:
-    - k8s-worker
+    - k8s-post-setup
