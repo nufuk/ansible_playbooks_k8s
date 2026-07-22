@@ -5,7 +5,7 @@
         state: latest
         update_cache: true
       async: 900
-      poll: 0
+      poll: 15
       become: true
 
     - name: Reboot the machine for kernel update
