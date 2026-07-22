@@ -6,8 +6,17 @@
         state: latest
         update_cache: true
       async: 900
-      poll: 15
+      poll: 0
+      register: dnf_async
       become: true
+
+    - name: wait synchronized for the kernel update
+      ansible.builtin.async_status:
+        jid: "{{ dnf_async.ansible_job_id }}"
+      register: job_result
+      until: job_result.finished
+      retries: 30
+      delay: 10
 
     - name: Reboot the machine for kernel update
       ansible.builtin.reboot:
@@ -84,42 +93,6 @@
         immediate: true
         zone: public
       become: true
-
-    - name: Disable NetworkManager DNS processing
-      ansible.builtin.copy:
-        dest: /etc/NetworkManager/conf.d/90-dns-none.conf
-        content: |
-          [main]
-          dns=none
-        owner: root
-        group: root
-        mode: '0644'
-      become: true
-
-    - name: create /etc/resolv.conf
-      ansible.builtin.copy:
-        dest: /etc/resolv.conf
-        content: |
-          nameserver 10.96.0.10
-          nameserver 192.168.178.1
-          nameserver 192.168.1.1
-          nameserver 192.168.178.63
-          search lan
-        owner: root
-        group: root
-        mode: '0644'
-      become: true
-
-    - name: Disable RX and TX offloading on eth0
-      ansible.builtin.command: ethtool -K eth0 tx off rx off
-      become: true
-
-    - name: Reload NetworkManager
-      ansible.builtin.service:
-        name: NetworkManager
-        state: reloaded
-      become: true
-
 
     - name: Add all inventory hosts to /etc/hosts
       lineinfile:

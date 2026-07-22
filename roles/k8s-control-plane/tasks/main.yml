@@ -82,8 +82,8 @@
         creates: /usr/local/bin/argocd
       become: true
 
-    - name: Patch kube-proxy ConfigMap via kubectl command
-      ansible.builtin.command: >
-        kubectl patch configmap -n kube-system kube-proxy 
-        -p '{"data":{"config.conf":"ipvs:\n  strictARP: true"}}'
-      changed_when: false
+    #- name: Patch kube-proxy ConfigMap via kubectl command
+    #  ansible.builtin.command: >
+    #    kubectl patch configmap -n kube-system kube-proxy 
+    #    -p '{"data":{"config.conf":"ipvs:\n  strictARP: true"}}'
+    #  changed_when: false
