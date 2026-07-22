@@ -114,10 +114,6 @@
       ansible.builtin.command: ethtool -K eth0 tx off rx off
       become: true
 
-    - name: Disable RX and TX offloading on cni0
-      ansible.builtin.command: ethtool -K cni0 tx off rx off
-      become: true
-
     - name: Reload NetworkManager
       ansible.builtin.service:
         name: NetworkManager
