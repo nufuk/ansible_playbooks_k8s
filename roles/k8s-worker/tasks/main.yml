@@ -19,6 +19,3 @@
 
     - name: Execute join command
       command: "{{ join_command.stdout }} --ignore-preflight-errors=NumCPU,Mem"
-    - name: Disable RX and TX offloading on cni0
-      ansible.builtin.command: ethtool -K cni0 tx off rx off
-      become: true
