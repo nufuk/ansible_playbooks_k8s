@@ -72,9 +72,9 @@
         - none
       become: true
 
-    - name: Change SELinux to permissive
+    - name: Disable SELinux
       ansible.posix.selinux:
-        state: permissive
+        state: disabled
 
     - name: Enable firewalld masquerade
       ansible.posix.firewalld:
