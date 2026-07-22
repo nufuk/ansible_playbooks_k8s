@@ -21,9 +21,5 @@
       command: "{{ join_command.stdout }} --ignore-preflight-errors=NumCPU,Mem"
     
     - name: Disable RX and TX offloading on flannel.1
-      ansible.builtin.ethtool:
-        name: flannel.1
-        offload:
-          rx: false
-          tx: false
+      ansible.builtin.command: ethtool -K flannel.1 tx off rx off
       become: true
