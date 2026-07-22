@@ -59,13 +59,25 @@
         group: nufuk
       become: true
 
-    - name: Disable RX and TX offloading on cni0
-      ansible.builtin.command: ethtool -K cni0 tx off rx off
+    - name: Download a file using the native get_url module
+      ansible.builtin.get_url:
+        url: "https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64"
+        dest: "/tmp/argocd-linux-amd64"
+        mode: '0644'
+
+    - name: Install ArgoCD binary using install command
+      ansible.builtin.command:
+        cmd: install -m 555 /tmp/argocd-linux-amd64 /usr/local/bin/argocd
+        creates: /usr/local/bin/argocd
       become: true
-      
-    - name: Disable RX and TX offloading on flannel.1
-      ansible.builtin.command: ethtool -K flannel.1 tx off rx off
-      become: true
+
+    #- name: Disable RX and TX offloading on cni0
+    #  ansible.builtin.command: ethtool -K cni0 tx off rx off
+    #  become: true
+
+    #- name: Disable RX and TX offloading on flannel.1
+    #  ansible.builtin.command: ethtool -K flannel.1 tx off rx off
+    #  become: true
 
     - name: Patch kube-proxy ConfigMap via kubectl command
       ansible.builtin.command: >
