@@ -97,8 +97,9 @@
 
     - name: create /etc/resolv.conf
       ansible.builtin.copy:
-        dest: /etc/NetworkManager/conf.d/90-dns-none.conf
+        dest: /etc/resolv.conf
         content: |
+          nameserver 10.96.0.10
           nameserver 192.168.178.1
           nameserver 192.168.1.1
           nameserver 192.168.178.63
