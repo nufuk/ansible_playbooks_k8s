@@ -4,14 +4,14 @@
   become: true
   gather_facts: true
   roles:
-    - k8s-pre-run
+    - k8s-pre-run-control-plane
 
 - name: Update Kernel workers
   hosts: workers
   become: true
   gather_facts: true
   roles:
-    - k8s-pre-run
+    - k8s-pre-run-workers
 
 - name: Install Kubernetes Cluster
   hosts: all

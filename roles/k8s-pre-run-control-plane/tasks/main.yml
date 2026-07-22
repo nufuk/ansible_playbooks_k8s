@@ -6,7 +6,6 @@
         update_cache: true
       async: 900
       poll: 0
-      register: dnf_async
       become: true
 
     - name: Reboot the machine for kernel update
