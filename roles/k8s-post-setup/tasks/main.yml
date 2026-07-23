@@ -1,45 +1,43 @@
 ---
-    - name: Assign eth0 interface to trusted zone
-      ansible.posix.firewalld:
-        zone: trusted
-        interface: eth0
-        permanent: true
-        state: enabled
-        
-    - name: Assign cni0 interface to trusted zone
-      ansible.posix.firewalld:
-        zone: trusted
-        interface: cni0
-        permanent: true
-        state: enabled
+    - name: Trigger cni0 creation with a dummy pod
+      ansible.builtin.command: >
+        kubectl run cni-trigger-{{ inventory_hostname }} --image=busybox --restart=Never
+        --overrides='{"spec": {"nodeName": "{{ inventory_hostname }}"}}' -- sleep 10
+      delegate_to: localhost
+      changed_when: true
 
-    - name: Assign flannel.1 interface to trusted zone
-      ansible.posix.firewalld:
-        zone: trusted
-        interface: flannel.1
-        permanent: true
-        state: enabled
+    - name: Wait for cni0 to appear
+      ansible.builtin.command: ip link show cni0
+      register: cni0_check
+      retries: 30
+      delay: 5
+      until: cni0_check.rc == 0
+      changed_when: false
 
-    - name: Restart firewalld service completely
-      ansible.builtin.service:
-        name: firewalld
-        state: restarted
-
-    - name: Pause for 1 minutes before offloading
-      ansible.builtin.pause:
-        minutes: 1
+    - name: Wait for flannel.1 to appear
+      ansible.builtin.command: ip link show flannel.1
+      register: flannel1_check
+      retries: 30
+      delay: 5
+      until: flannel1_check.rc == 0
+      changed_when: false
 
     - name: Disable RX and TX offloading on eth0
       ansible.builtin.command: ethtool -K eth0 tx off rx off
       become: true
 
+#    - name: Disable RX and TX offloading on cni0
+#      ansible.builtin.command: ethtool -K cni0 tx off rx off
+#      become: true
     - name: Disable RX and TX offloading on cni0
       ansible.builtin.command: ethtool -K cni0 tx off rx off
       become: true
+      when: cni0_check.rc == 0 
 
     - name: Disable RX and TX offloading on flannel.1
       ansible.builtin.command: ethtool -K flannel.1 tx off rx off
       become: true
+      when: flannel1_check.rc == 0 
 
     - name: Reboot the machine
       ansible.builtin.reboot:
