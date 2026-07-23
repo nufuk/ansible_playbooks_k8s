@@ -138,7 +138,7 @@
         state: started
       become: true
 
-    - name: Create a new folder
+    - name: Create a new folder for containerd
       ansible.builtin.file:
         path: /etc/containerd
         state: directory
@@ -186,9 +186,6 @@
         enabled: true
         state: started
       become: true
-
-
-### Moved here from post_setup
 
     - name: Assign eth0 interface to trusted zone
       ansible.posix.firewalld:

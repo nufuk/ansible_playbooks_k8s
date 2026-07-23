@@ -1,8 +1,4 @@
 ---
-    - name: Update dnf package cache
-      ansible.builtin.dnf:
-        update_cache: true
-
     - name: Ports freischalten
       ansible.posix.firewalld:
         port: "{{ item }}"
@@ -70,9 +66,9 @@
         group: nufuk
       become: true
 
-    - name: Download a file using the native get_url module
+    - name: Download argocd
       ansible.builtin.get_url:
-        url: "https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64"
+        url: "{{ argocd_url }}"
         dest: "/tmp/argocd-linux-amd64"
         mode: '0644'
 
@@ -82,8 +78,19 @@
         creates: /usr/local/bin/argocd
       become: true
 
-    #- name: Patch kube-proxy ConfigMap via kubectl command
-    #  ansible.builtin.command: >
-    #    kubectl patch configmap -n kube-system kube-proxy 
-    #    -p '{"data":{"config.conf":"ipvs:\n  strictARP: true"}}'
-    #  changed_when: false
+    - name: Download helm
+      ansible.builtin.get_url:
+        url: "{{ helm_url }}"
+        dest: "/tmp/helm-linux-amd64.tar.gz"
+        mode: '0644'
+
+    - name: Extract helm.tgz into /var/lib/foo
+      ansible.builtin.unarchive:
+        src: /tmp/helm-linux-amd64.tar.gz
+        dest: /tmp/helm
+
+    - name: move the helm executable into /usr/local/bin/helm
+      ansible.builtin.copy:
+        src: /tmp/helm/linux-amd64/helm
+        dest: /usr/local/bin/helm
+        remote_src: true

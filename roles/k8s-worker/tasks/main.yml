@@ -1,8 +1,4 @@
 ---
-    - name: Update dnf package cache
-      ansible.builtin.dnf:
-        update_cache: true
-
     - name: Ports freischalten
       ansible.posix.firewalld:
         port: "{{ item }}"
