@@ -1,5 +1,5 @@
 ---
-    - name: Trigger cni0 creation with a dummy pod
+    - name: Trigger cni0 flannel.1 creation with a dummy pod
       ansible.builtin.command: >
         kubectl run cni-trigger-{{ custom_hostname }} --image=busybox --restart=Never
         --overrides='{"spec": {"nodeName": "{{ custom_hostname }}"}}' -- sleep 10
