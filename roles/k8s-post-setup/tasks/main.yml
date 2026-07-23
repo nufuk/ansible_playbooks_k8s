@@ -1,8 +1,8 @@
 ---
     - name: Trigger cni0 creation with a dummy pod
       ansible.builtin.command: >
-        kubectl run cni-trigger-{{ inventory_hostname }} --image=busybox --restart=Never
-        --overrides='{"spec": {"nodeName": "{{ inventory_hostname }}"}}' -- sleep 10
+        kubectl run cni-trigger-{{ custom_hostname }} --image=busybox --restart=Never
+        --overrides='{"spec": {"nodeName": "{{ custom_hostname }}"}}' -- sleep 10
       delegate_to: localhost
       changed_when: true
 
