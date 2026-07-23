@@ -1,30 +1,25 @@
 ---
-    - name: Turn on masquerading in the public zone
-      ansible.posix.firewalld:
-        zone: public
-        masquerade: true
-        state: enabled
-        permanent: true
-        immediate: true
-
     - name: Assign eth0 interface to trusted zone
       ansible.posix.firewalld:
         zone: trusted
         interface: eth0
         permanent: true
         state: enabled
+        
     - name: Assign cni0 interface to trusted zone
       ansible.posix.firewalld:
         zone: trusted
         interface: cni0
         permanent: true
         state: enabled
+
     - name: Assign flannel.1 interface to trusted zone
       ansible.posix.firewalld:
         zone: trusted
         interface: flannel.1
         permanent: true
         state: enabled
+        
     - name: Restart firewalld service completely
       ansible.builtin.service:
         name: firewalld
