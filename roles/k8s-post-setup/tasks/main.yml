@@ -19,7 +19,7 @@
         interface: flannel.1
         permanent: true
         state: enabled
-        
+
     - name: Restart firewalld service completely
       ansible.builtin.service:
         name: firewalld
@@ -29,9 +29,9 @@
       ansible.builtin.command: ethtool -K eth0 tx off rx off
       become: true
 
-    - name: Disable RX and TX offloading on cni0
-      ansible.builtin.command: ethtool -K cni0 tx off rx off
-      become: true
+#    - name: Disable RX and TX offloading on cni0
+#      ansible.builtin.command: ethtool -K cni0 tx off rx off
+#      become: true
 
     - name: Disable RX and TX offloading on flannel.1
       ansible.builtin.command: ethtool -K flannel.1 tx off rx off
