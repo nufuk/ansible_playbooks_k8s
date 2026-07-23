@@ -40,6 +40,16 @@
       ansible.builtin.hostname:
         name: "{{ custom_hostname }}"
 
+    - name: udev rule for cni0 and flannel.1
+      ansible.builtin.copy:
+        dest: /etc/udev/rules.d/99-k8-cni-offload.rules
+        ower: root
+        group: root
+        mode: '0644'
+        content:
+          ACTION=="add", SUBSYSTEM=="net", KERNEL=="cni0", RUN+="/usr/sbin/ethtool -K cni0 rx off tx off"
+          ACTION=="add", SUBSYSTEM=="net", KERNEL=="flannel.1", RUN+="/usr/sbin/ethtool -K flannel.1 rx off tx off"
+
     - name: Reboot the machine and wait for it to return
       ansible.builtin.reboot:
         msg: "Reboot initiated by Ansible"
