@@ -43,7 +43,7 @@
     - name: udev rule for cni0 and flannel.1
       ansible.builtin.copy:
         dest: /etc/udev/rules.d/99-k8-cni-offload.rules
-        ower: root
+        owner: root
         group: root
         mode: '0644'
         content:
