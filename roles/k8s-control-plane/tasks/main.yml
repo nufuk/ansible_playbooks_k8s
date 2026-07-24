@@ -35,10 +35,15 @@
         dest: "/tmp/kube-flannel.yml"
         mode: '0644'
 
-    - name: Apply Flannel manifest via kubectl
-      ansible.builtin.shell: "sudo kubectl apply -f /tmp/kube-flannel.yml"
-      register: kubectl_apply
-      changed_when: "'created' in kubectl_apply.stdout or 'configured' in kubectl_apply.stdout"
+    - name: Apply Flannel manifest via kubernetes.core.k8s
+      kubernetes.core.k8s:
+        state: present
+        src: /tmp/kube-flannel.yml
+
+#    - name: Apply Flannel manifest via kubectl
+#      ansible.builtin.shell: "sudo kubectl apply -f /tmp/kube-flannel.yml"
+#      register: kubectl_apply
+#      changed_when: "'created' in kubectl_apply.stdout or 'configured' in kubectl_apply.stdout"
 
     - name: Download the official metallb manifest
       ansible.builtin.get_url:
@@ -46,10 +51,15 @@
         dest: "/tmp/metallb-native.yml"
         mode: '0644'
 
-    - name: Apply Flannel manifest via kubectl
-      ansible.builtin.shell: "sudo kubectl apply -f /tmp/metallb-native.yml"
-      register: kubectl_apply
-      changed_when: "'created' in kubectl_apply.stdout or 'configured' in kubectl_apply.stdout"
+    - name: Apply metallb-native manifest via kubernetes.core.k8s
+      kubernetes.core.k8s:
+        state: present
+        src: /tmp/metallb-native.yml
+
+#    - name: Apply Flannel manifest via kubectl
+#      ansible.builtin.shell: "sudo kubectl apply -f /tmp/metallb-native.yml"
+#      register: kubectl_apply
+#      changed_when: "'created' in kubectl_apply.stdout or 'configured' in kubectl_apply.stdout"
 
     - name: Create .kube in home directoty
       ansible.builtin.file:
@@ -88,9 +98,20 @@
       ansible.builtin.unarchive:
         src: /tmp/helm-linux-amd64.tar.gz
         dest: /tmp/helm
+        remote_src: true
 
     - name: move the helm executable into /usr/local/bin/helm
       ansible.builtin.copy:
         src: /tmp/helm/linux-amd64/helm
         dest: /usr/local/bin/helm
         remote_src: true
+
+    - name: Static ipaddresspool-Datei
+      kubernetes.core.k8s:
+        state: present
+        definition: "{{ lookup('ansible.builtin.file', role_path + '/files/ipaddresspool.yaml') | from_yaml }}"
+
+    - name: Static l2advertiesment-Datei
+      kubernetes.core.k8s:
+        state: present
+        definition: "{{ lookup('ansible.builtin.file', role_path + '/files/l2advertisement.yaml') | from_yaml }}"
