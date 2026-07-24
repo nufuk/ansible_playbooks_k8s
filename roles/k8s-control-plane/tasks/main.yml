@@ -94,17 +94,17 @@
         creates: /usr/local/bin/argocd
       become: true
 
-    - name: Extract helm.tgz into /var/lib/foo
-      ansible.builtin.unarchive:
-        src: /tmp/helm-linux-amd64.tar.gz
-        dest: /tmp/helm
-        remote_src: true
+#    - name: Extract helm.tgz into /var/lib/foo
+#      ansible.builtin.unarchive:
+#        src: /tmp/helm-linux-amd64.tar.gz
+#        dest: /tmp/helm
+#        remote_src: true
 
-    - name: move the helm executable into /usr/local/bin/helm
-      ansible.builtin.copy:
-        src: /tmp/helm/linux-amd64/helm
-        dest: /usr/local/bin/helm
-        remote_src: true
+#    - name: move the helm executable into /usr/local/bin/helm
+#      ansible.builtin.copy:
+#        src: /tmp/helm/linux-amd64/helm
+#        dest: /usr/local/bin/helm
+#        remote_src: true
 
     - name: Kopiere die ipaddresspool auf den Server
       ansible.builtin.copy:
