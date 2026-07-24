@@ -66,6 +66,12 @@
         group: nufuk
       become: true
 
+    - name: Download helm
+      ansible.builtin.get_url:
+        url: "{{ helm_url }}"
+        dest: "/tmp/helm-linux-amd64.tar.gz"
+        mode: '0644'
+
     - name: Download argocd
       ansible.builtin.get_url:
         url: "{{ argocd_url }}"
@@ -77,12 +83,6 @@
         cmd: install -m 555 /tmp/argocd-linux-amd64 /usr/local/bin/argocd
         creates: /usr/local/bin/argocd
       become: true
-
-    - name: Download helm
-      ansible.builtin.get_url:
-        url: "{{ helm_url }}"
-        dest: "/tmp/helm-linux-amd64.tar.gz"
-        mode: '0644'
 
     - name: Extract helm.tgz into /var/lib/foo
       ansible.builtin.unarchive:
