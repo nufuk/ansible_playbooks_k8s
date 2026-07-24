@@ -3,7 +3,7 @@ kind: IPAddressPool
 metadata:
   name: homelab-pool
   namespace: metallb-system
-
 spec:
   addresses:
-    - 192.168.1.201-192.168.1.250
+    - 192.168.1.150-192.168.1.200 
+    - 192.168.1.205-192.168.1.250
