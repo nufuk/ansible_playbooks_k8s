@@ -1,4 +1,6 @@
 ---
+
+
   - name: Kopiere die ipaddresspool auf den Server
     ansible.builtin.copy:
       src: ipaddresspool.yml
@@ -9,6 +11,8 @@
     ansible.builtin.shell: "sudo kubectl apply -f /tmp/ipaddresspool.yml"
     register: kubectl_apply
     changed_when: "'created' in kubectl_apply.stdout or 'configured' in kubectl_apply.stdout"
+    retries: 3
+    delay: 20
 
   - name: Kopiere die l2advertiesment auf den Server
     ansible.builtin.copy:
@@ -20,3 +24,5 @@
     ansible.builtin.shell: "sudo kubectl apply -f /tmp/l2advertiesment.yml"
     register: kubectl_apply
     changed_when: "'created' in kubectl_apply.stdout or 'configured' in kubectl_apply.stdout"
+    retries: 3
+    delay: 20
