@@ -11,18 +11,18 @@
     ansible.builtin.shell: "sudo kubectl apply -f /tmp/ipaddresspool.yml"
     register: kubectl_apply
     changed_when: "'created' in kubectl_apply.stdout or 'configured' in kubectl_apply.stdout"
-    retries: 3
-    delay: 20
+    retries: 5
+    delay: 30
 
-  - name: Kopiere die l2advertiesment auf den Server
+  - name: Kopiere die l2advertisement auf den Server
     ansible.builtin.copy:
-      src: l2advertiesment.yml
-      dest: /tmp/l2advertiesment.yml
+      src: l2advertisement.yml
+      dest: /tmp/l2advertisement.yml
       mode: '0644'
 
   - name: Apply l2advertiesment manifest via kubectl
-    ansible.builtin.shell: "sudo kubectl apply -f /tmp/l2advertiesment.yml"
+    ansible.builtin.shell: "sudo kubectl apply -f /tmp/l2advertisement.yml"
     register: kubectl_apply
     changed_when: "'created' in kubectl_apply.stdout or 'configured' in kubectl_apply.stdout"
     retries: 3
-    delay: 20
+    delay: 10
