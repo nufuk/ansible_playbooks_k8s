@@ -46,7 +46,7 @@
         owner: root
         group: root
         mode: '0644'
-        content:
+        content: |
           ACTION=="add", SUBSYSTEM=="net", KERNEL=="cni0", RUN+="/usr/sbin/ethtool -K cni0 rx off tx off"
           ACTION=="add", SUBSYSTEM=="net", KERNEL=="flannel.1", RUN+="/usr/sbin/ethtool -K flannel.1 rx off tx off"
 
