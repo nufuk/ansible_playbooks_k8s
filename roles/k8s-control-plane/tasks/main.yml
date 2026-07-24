@@ -106,27 +106,6 @@
 #        dest: /usr/local/bin/helm
 #        remote_src: true
 
-    - name: Kopiere die ipaddresspool auf den Server
-      ansible.builtin.copy:
-        src: ipaddresspool.yml
-        dest: /tmp/ipaddresspool.yml
-        mode: '0644'
-
-    - name: Apply ipaddresspool manifest via kubectl
-      ansible.builtin.shell: "sudo kubectl apply -f /tmp/ipaddresspool.yml"
-      register: kubectl_apply
-      changed_when: "'created' in kubectl_apply.stdout or 'configured' in kubectl_apply.stdout"
-
-    - name: Kopiere die l2advertiesment auf den Server
-      ansible.builtin.copy:
-        src: l2advertiesment.yml
-        dest: /tmp/l2advertiesment.yml
-        mode: '0644'
-
-    - name: Apply l2advertiesment manifest via kubectl
-      ansible.builtin.shell: "sudo kubectl apply -f /tmp/l2advertiesment.yml"
-      register: kubectl_apply
-      changed_when: "'created' in kubectl_apply.stdout or 'configured' in kubectl_apply.stdout"
 
 #    - name: Static ipaddresspool-Datei
 #      kubernetes.core.k8s:

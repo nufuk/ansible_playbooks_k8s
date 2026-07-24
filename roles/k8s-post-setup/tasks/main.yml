@@ -1,47 +1,22 @@
 ---
-    - name: Trigger cni0 flannel.1 creation with a dummy pod
-      ansible.builtin.command: >
-        kubectl run cni-trigger-{{ custom_hostname }} --image=busybox --restart=Never
-        --overrides='{"spec": {"nodeName": "{{ custom_hostname }}"}}' -- sleep 10
-      delegate_to: localhost
-      changed_when: true
+  - name: Kopiere die ipaddresspool auf den Server
+    ansible.builtin.copy:
+      src: ipaddresspool.yml
+      dest: /tmp/ipaddresspool.yml
+      mode: '0644'
 
-    - name: Wait for cni0 to appear
-      ansible.builtin.command: ip link show cni0
-      register: cni0_check
-      retries: 30
-      delay: 5
-      until: cni0_check.rc == 0
-      changed_when: false
+  - name: Apply ipaddresspool manifest via kubectl
+    ansible.builtin.shell: "sudo kubectl apply -f /tmp/ipaddresspool.yml"
+    register: kubectl_apply
+    changed_when: "'created' in kubectl_apply.stdout or 'configured' in kubectl_apply.stdout"
 
-    - name: Wait for flannel.1 to appear
-      ansible.builtin.command: ip link show flannel.1
-      register: flannel1_check
-      retries: 30
-      delay: 5
-      until: flannel1_check.rc == 0
-      changed_when: false
+  - name: Kopiere die l2advertiesment auf den Server
+    ansible.builtin.copy:
+      src: l2advertiesment.yml
+      dest: /tmp/l2advertiesment.yml
+      mode: '0644'
 
-    - name: Disable RX and TX offloading on eth0
-      ansible.builtin.command: ethtool -K eth0 tx off rx off
-      become: true
-
-#    - name: Disable RX and TX offloading on cni0
-#      ansible.builtin.command: ethtool -K cni0 tx off rx off
-#      become: true
-    - name: Disable RX and TX offloading on cni0
-      ansible.builtin.command: ethtool -K cni0 tx off rx off
-      become: true
-      when: cni0_check.rc == 0 
-
-    - name: Disable RX and TX offloading on flannel.1
-      ansible.builtin.command: ethtool -K flannel.1 tx off rx off
-      become: true
-      when: flannel1_check.rc == 0 
-
-    - name: Reboot the machine
-      ansible.builtin.reboot:
-        msg: "Reboot initiated by Ansible"
-        connect_timeout: 5
-        reboot_timeout: 600
-        pre_reboot_delay: 0
+  - name: Apply l2advertiesment manifest via kubectl
+    ansible.builtin.shell: "sudo kubectl apply -f /tmp/l2advertiesment.yml"
+    register: kubectl_apply
+    changed_when: "'created' in kubectl_apply.stdout or 'configured' in kubectl_apply.stdout"
