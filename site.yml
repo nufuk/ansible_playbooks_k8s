@@ -34,8 +34,8 @@
   roles:
     - k8s-worker
 
-- name: Run post setup tasks
-  hosts: all
+- name: Run post setup tasks control-plane
+  hosts: control-plane
   become: true
   gather_facts: true
   roles:
