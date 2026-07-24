@@ -83,3 +83,4 @@
         src: /tmp/linux-amd64/helm
         dest: /usr/local/bin/helm
         remote_src: true
+        mode: '0555'
