@@ -1,6 +1,4 @@
 ---
-
-
   - name: Kopiere die ipaddresspool auf den Server
     ansible.builtin.copy:
       src: ipaddresspool.yml
@@ -22,6 +20,33 @@
 
   - name: Apply l2advertiesment manifest via kubectl
     ansible.builtin.shell: "sudo kubectl apply -f /tmp/l2advertisement.yml"
+    register: kubectl_apply
+    changed_when: "'created' in kubectl_apply.stdout or 'configured' in kubectl_apply.stdout"
+    retries: 3
+    delay: 10
+
+  - name: create argocd namespace
+    ansible.builtin.shell: "kubectl create namespace argocd"
+    register: kubectl_apply
+    changed_when: "'created' in kubectl_apply.stdout or 'configured' in kubectl_apply.stdout"
+    retries: 3
+    delay: 10
+
+  - name: apply argocd manifest
+    ansible.builtin.shell: "sudo kubectl apply -n argocd --server-side --force-conflicts -f {{ argocd_manifest_url }}"
+    register: kubectl_apply
+    changed_when: "'created' in kubectl_apply.stdout or 'configured' in kubectl_apply.stdout"
+    retries: 3
+    delay: 10
+
+  - name: Kopiere die argocd_lb_patch auf den Server
+    ansible.builtin.copy:
+      src: argocd_lb_patch.yml
+      dest: /tmp/argocd_lb_patch.yml
+      mode: '0644'
+
+  - name: Patch Argocd svc with type Loadbalacner and IP
+    ansible.builtin.shell: "sudo kubectl patch svc argocd-server -n argocd --patch-file /tmp/argocd_lb_patch.yml"
     register: kubectl_apply
     changed_when: "'created' in kubectl_apply.stdout or 'configured' in kubectl_apply.stdout"
     retries: 3

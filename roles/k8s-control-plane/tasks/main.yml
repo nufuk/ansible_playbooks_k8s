@@ -29,11 +29,11 @@
       become: true
       when: kubeadm_init_result.changed
 
-    - name: Download the official Flannel manifest
-      ansible.builtin.get_url:
-        url: "{{ flannel_manifest_url }}"
-        dest: "/tmp/kube-flannel.yml"
-        mode: '0644'
+#    - name: Download the official Flannel manifest
+#      ansible.builtin.get_url:
+#        url: "{{ flannel_manifest_url }}"
+#        dest: "/tmp/kube-flannel.yml"
+#        mode: '0644'
 
 #    - name: Apply Flannel manifest via kubernetes.core.k8s
 #      kubernetes.core.k8s:
@@ -41,23 +41,23 @@
 #        src: /tmp/kube-flannel.yml
 
     - name: Apply Flannel manifest via kubectl
-      ansible.builtin.shell: "sudo kubectl apply -f /tmp/kube-flannel.yml"
+      ansible.builtin.shell: "sudo kubectl apply -f {{ flannel_manifest_url }}"
       register: kubectl_apply
       changed_when: "'created' in kubectl_apply.stdout or 'configured' in kubectl_apply.stdout"
 
-    - name: Download the official metallb manifest
-      ansible.builtin.get_url:
-        url: "{{ metallb_manifest_url }}"
-        dest: "/tmp/metallb-native.yml"
-        mode: '0644'
+#    - name: Download the official metallb manifest
+#      ansible.builtin.get_url:
+#        url: "{{ metallb_manifest_url }}"
+#        dest: "/tmp/metallb-native.yml"
+#        mode: '0644'
 
 #    - name: Apply metallb-native manifest via kubernetes.core.k8s
 #      kubernetes.core.k8s:
 #        state: present
 #        src: /tmp/metallb-native.yml
 
-    - name: Apply Flannel manifest via kubectl
-      ansible.builtin.shell: "sudo kubectl apply -f /tmp/metallb-native.yml"
+    - name: Apply metallb manifest via kubectl
+      ansible.builtin.shell: "sudo kubectl apply -f {{ metallb_manifest_url }}"
       register: kubectl_apply
       changed_when: "'created' in kubectl_apply.stdout or 'configured' in kubectl_apply.stdout"
 
@@ -76,13 +76,13 @@
         group: nufuk
       become: true
 
-    - name: Download helm
+    - name: Download helm tool
       ansible.builtin.get_url:
         url: "{{ helm_url }}"
         dest: "/tmp/helm-linux-amd64.tar.gz"
         mode: '0644'
 
-    - name: Download argocd
+    - name: Download argocd tool
       ansible.builtin.get_url:
         url: "{{ argocd_url }}"
         dest: "/tmp/argocd-linux-amd64"
@@ -94,17 +94,17 @@
         creates: /usr/local/bin/argocd
       become: true
 
-#    - name: Extract helm.tgz into /var/lib/foo
-#      ansible.builtin.unarchive:
-#        src: /tmp/helm-linux-amd64.tar.gz
-#        dest: /tmp/helm
-#        remote_src: true
+    - name: Extract helm-linux-amd64.tar.gz into /tmp/helm
+      ansible.builtin.unarchive:
+        src: /tmp/helm-linux-amd64.tar.gz
+        dest: /tmp/helm
+        remote_src: true
 
-#    - name: move the helm executable into /usr/local/bin/helm
-#      ansible.builtin.copy:
-#        src: /tmp/helm/linux-amd64/helm
-#        dest: /usr/local/bin/helm
-#        remote_src: true
+    - name: move the helm executable into /usr/local/bin/helm
+      ansible.builtin.copy:
+        src: /tmp/helm/linux-amd64/helm
+        dest: /usr/local/bin/helm
+        remote_src: true
 
 
 #    - name: Static ipaddresspool-Datei
