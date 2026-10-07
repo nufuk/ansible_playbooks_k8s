@@ -1,0 +1,18 @@
+# Enable automatic creation of the cluster CRD resources
+cluster:
+  enabled: true
+
+# Define storage pools on the satellites
+satellite:
+  storagePools:
+    - name: lvm-thin
+      lvmThin:
+        volumeGroup: "linstor-vg"
+        thinPool: "thinpool"
+        # Points to the unused block device on your K8s worker hosts
+        devicePaths: 
+          - /dev/sdb 
+
+# Use Kubernetes CRDs as the backing store instead of an external DB
+operator:
+  database: k8s

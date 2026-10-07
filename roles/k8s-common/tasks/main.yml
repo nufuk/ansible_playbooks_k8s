@@ -25,9 +25,15 @@
           - traceroute
           - bind-utils
           - https://www.elrepo.org/elrepo-release-10.el10.elrepo.noarch.rpm
+          - lvm2
+        state: latest
+        update_cache: true
+
+    - name: install drbd packages with dnf
+      ansible.builtin.dnf:
+        name:
           - kmod-drbd9x 
           - drbd9x-utils
-          - lvm2
         state: latest
         update_cache: true
 
