@@ -24,8 +24,12 @@
           - wget
           - traceroute
           - bind-utils
-          - https://www.elrepo.org/elrepo-release-10.el10.elrepo.noarch.rpm
+          - https://www.elrepo.org/elrepo-release-10.el10.elrepo.noarch.rpm # for linstor
           - lvm2
+          - gcc
+          - make
+          - elfutils-libelf-devel
+          - kernel-devel-$(uname -r)
         state: latest
         update_cache: true
 

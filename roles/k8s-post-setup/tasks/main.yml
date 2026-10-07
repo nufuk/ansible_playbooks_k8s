@@ -66,11 +66,8 @@
 
   - name: Helm install piraeus operator
     ansible.builtin.command:
-      cmd: >-
-        helm install linstor piraeus-charts/piraeus-operator
-        --namespace linstor
-        --create-namespace
-        -f /tmp/linstor-values.yaml
+      cmd: helm upgrade --install --create-namespace --namespace piraeus-datastore piraeus-operator oci://ghcr.io/piraeusdatastore/piraeus-operator/piraeus --set installCRDs=true --wait
+      helm upgrade --install --namespace piraeus-datastore linstor-cluster oci://ghcr.io/piraeusdatastore/helm-charts/linstor-cluster
     register: install_piraeus_operator
     become: true
 
