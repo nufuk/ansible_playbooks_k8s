@@ -64,16 +64,17 @@
       dest: /tmp/linstor-values.yaml
       mode: '0644'
 
-  - name: Helm install piraeus operator
+  - name: Helm install piraeus datastore
     ansible.builtin.command:
-      cmd: >-
-        helm install linstor piraeus-charts/piraeus-operator
-        --namespace linstor
-        --create-namespace
-        -f /tmp/linstor-values.yaml
+      cmd: helm upgrade --install --create-namespace --namespace piraeus-datastore piraeus-operator oci://ghcr.io/piraeusdatastore/piraeus-operator/piraeus --set installCRDs=true --wait
     register: install_piraeus_operator
     become: true
 
+  - name: Helm install piraeus linstor on cluster
+    ansible.builtin.command:
+      cmd: helm upgrade --install --namespace piraeus-datastore linstor-cluster oci://ghcr.io/piraeusdatastore/helm-charts/linstor-cluster
+    register: install_piraeus_operator
+    become: true
 
   - name: Kopiere die linstor-sc auf den Server
     ansible.builtin.copy:
