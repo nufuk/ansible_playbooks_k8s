@@ -51,3 +51,60 @@
     changed_when: "'created' in kubectl_apply.stdout or 'configured' in kubectl_apply.stdout"
     retries: 3
     delay: 10
+
+
+  - name: vgcreate linstor linstor_vg /dev/sdb
+    ansible.builtin.command:
+      cmd: >-
+        vgcreate linstor linstor_vg /dev/sdb
+      become: true
+
+  - name: lvcreate -L 75G -T linstor_vg/thinpool
+    ansible.builtin.command:
+      cmd: >-
+        lvcreate -L 75G -T linstor_vg/thinpool
+      become: true
+
+
+  - name: helm add piraeus operator
+    ansible.builtin.command:
+      cmd: >-
+        helm repo add piraeus-charts https://piraeus.io;
+        helm repo update
+      become: true
+
+  - name: Helm install piraeus operator
+    ansible.builtin.command:
+      cmd: >-
+        helm install piraeus piraeus-charts/piraeus-operator
+          --namespace piraeus-datastore --create-namespace
+          --set operator.satelliteSet.kernelModuleInjectionMode=DepsOnly
+          --set-string operator.satelliteSet.resources.requests.cpu=100m
+          --set-string operator.satelliteSet.resources.requests.memory=150Mi
+          --set-string operator.satelliteSet.resources.limits.memory=300Mi
+
+  - name: Kopiere die linstor-sc auf den Server
+    ansible.builtin.copy:
+      src: linstor-sc.yaml
+      dest: /tmp/linstor-sc.yaml
+      mode: '0644'
+
+  - name: Apply linstor sc file
+    ansible.builtin.shell: "sudo kubectl apply -f /tmp/linstor-sc.yaml"
+    register: kubectl_apply
+    changed_when: "'created' in kubectl_apply.stdout or 'configured' in kubectl_apply.stdout"
+    retries: 3
+    delay: 10
+
+  - name: Kopiere die piraeus-storage auf den Server
+    ansible.builtin.copy:
+      src: piraeus-storage.yaml
+      dest: /tmp/piraeus-storage.yaml
+      mode: '0644'
+
+  - name: apply piraeus-storage file
+    ansible.builtin.shell: "sudo kubectl apply -f /tmp/piraeus-storage.yml"
+    register: kubectl_apply
+    changed_when: "'created' in kubectl_apply.stdout or 'configured' in kubectl_apply.stdout"
+    retries: 3
+    delay: 10
