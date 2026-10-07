@@ -24,8 +24,8 @@
           - wget
           - traceroute
           - bind-utils
-          - https://elrepo.org
-          - kmod-drbd9x
+          - https://www.elrepo.org/elrepo-release-10.el10.elrepo.noarch.rpm
+          - kmod-drbd9x 
           - drbd9x-utils
           - lvm2
         state: latest
