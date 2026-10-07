@@ -1,10 +1,11 @@
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
-  name: linstor-low-resource
-provisioner: linstor.sci.linbit.com
-parameters:
-  autolace: "2"
-  storagePool: "lvm-thin-pool"
-://linbit.com: "DRBD,STORAGE"
+  name: linstor-r2
+provisioner: linstor.csi.linbit.com
 allowVolumeExpansion: true
+parameters:
+  # Must match the storage pool name configured in values.yaml
+  storagePool: "lvm-thin"
+  # Defines the replication count (e.g., 2 replicas sync'd across hosts via DRBD)
+  autoPlace: "2"
