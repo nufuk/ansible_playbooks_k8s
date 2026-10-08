@@ -29,7 +29,7 @@
           - gcc
           - make
           - elfutils-libelf-devel
-          - "kernel-devel-$(uname -r)"
+          - kernel-devel-{{ansible_kernel }}
         state: latest
         update_cache: true
 
