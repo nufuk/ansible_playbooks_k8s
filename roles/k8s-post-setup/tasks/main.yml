@@ -65,15 +65,15 @@
 #      mode: '0644'
 
   - name: Helm install piraeus datastore
-    ansible.builtin.command:
-      cmd: helm upgrade --install --create-namespace --namespace piraeus-datastore piraeus-operator oci://ghcr.io/piraeusdatastore/piraeus-operator/piraeus --set installCRDs=true --wait
+    ansible.builtin.shell: "helm upgrade --install --create-namespace --namespace piraeus-datastore piraeus-operator oci://ghcr.io/piraeusdatastore/piraeus-operator/piraeus --set installCRDs=true --wait"
     register: install_piraeus_operator
+    changed_when: "'installed' in install_piraeus_operator"
     become: true
 
   - name: Helm install piraeus linstor on cluster
-    ansible.builtin.command:
-      cmd: helm upgrade --install --namespace piraeus-datastore linstor-cluster oci://ghcr.io/piraeusdatastore/helm-charts/linstor-cluster
+    ansible.builtin.shell: "helm upgrade --install --namespace piraeus-datastore linstor-cluster oci://ghcr.io/piraeusdatastore/helm-charts/linstor-cluster"
     register: install_piraeus_operator
+    changed_when: "'deployed' in install_piraeus_operator" 
     become: true
 
   - name: Kopiere die linstor-sc auf den Server
