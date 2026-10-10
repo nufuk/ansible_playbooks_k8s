@@ -4,7 +4,7 @@
         name: kernel
         state: latest
         update_cache: true
-      async: 900
+      async: 3600
       poll: 15
       become: true
 
