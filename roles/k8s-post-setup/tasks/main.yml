@@ -84,7 +84,7 @@
       mode: '0644'
 
   - name: Helm upgrade linstor values
-    ansible.builtin.shell: "/usr/local/bin/helm upgrade linstor-cluster oci://ghcr.io/piraeusdatastore/helm-charts/linstor-cluster -n piraeus-datastore -f /tmp/linstor-values.yml --reuse-values"
+    ansible.builtin.shell: "/usr/local/bin/helm upgrade linstor-cluster oci://ghcr.io/piraeusdatastore/helm-charts/linstor-cluster -n piraeus-datastore -f /tmp/linstor-values.yaml --reuse-values"
     register: install_piraeus_operator
     changed_when: "'deployed' in install_piraeus_operator" 
     become: true
