@@ -52,26 +52,14 @@
     retries: 3
     delay: 10
 
-#  - name: helm add piraeus operator
-#    ansible.builtin.command:
-#      cmd: helm repo add piraeus-charts https://piraeus.io; helm repo update
-#    register: init_helm
-#    become: true
-
-#  - name: Kopiere die linstor-values-storage auf den Server
-#    ansible.builtin.copy:
-#      src: linstor-values.yaml
-#      dest: /tmp/linstor-values.yaml
-#      mode: '0644'
-
   - name: Helm install piraeus datastore
-    ansible.builtin.shell: "helm upgrade --install --create-namespace --namespace piraeus-datastore piraeus-operator oci://ghcr.io/piraeusdatastore/piraeus-operator/piraeus --set installCRDs=true --wait"
+    ansible.builtin.shell: "/usr/local/bin/helm upgrade --install --create-namespace --namespace piraeus-datastore piraeus-operator oci://ghcr.io/piraeusdatastore/piraeus-operator/piraeus --set installCRDs=true --wait"
     register: install_piraeus_operator
     changed_when: "'installed' in install_piraeus_operator"
     become: true
 
   - name: Helm install piraeus linstor on cluster
-    ansible.builtin.shell: "helm upgrade --install --namespace piraeus-datastore linstor-cluster oci://ghcr.io/piraeusdatastore/helm-charts/linstor-cluster"
+    ansible.builtin.shell: "/usr/local/bin/helm upgrade --install --namespace piraeus-datastore linstor-cluster oci://ghcr.io/piraeusdatastore/helm-charts/linstor-cluster"
     register: install_piraeus_operator
     changed_when: "'deployed' in install_piraeus_operator" 
     become: true
@@ -88,3 +76,25 @@
     changed_when: "'created' in kubectl_apply.stdout or 'configured' in kubectl_apply.stdout"
     retries: 3
     delay: 10
+
+  - name: Kopiere die linstor-values auf den Server
+    ansible.builtin.copy:
+      src: linstor-values.yaml
+      dest: /tmp/linstor-values.yaml
+      mode: '0644'
+
+  - name: Helm upgrade linstor values
+    ansible.builtin.shell: "/usr/local/bin/helm upgrade linstor-cluster oci://ghcr.io/piraeusdatastore/helm-charts/linstor-cluster -n piraeus-datastore -f /tmp/linstor-values.yml --reuse-values"
+    register: install_piraeus_operator
+    changed_when: "'deployed' in install_piraeus_operator" 
+    become: true
+# helm upgrade linstor-cluster oci://ghcr.io/piraeusdatastore/helm-charts/linstor-cluster   -n piraeus-datastore   -f /tmp/linstor-values.yml   --reuse-values
+
+
+
+  - name: Reboot the machine and wait for it to return
+    ansible.builtin.reboot:
+      msg: "Reboot initiated by Ansible"
+      connect_timeout: 5
+      reboot_timeout: 600
+      pre_reboot_delay: 0
