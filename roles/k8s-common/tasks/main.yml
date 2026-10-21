@@ -30,6 +30,7 @@
           - make
           - elfutils-libelf-devel
           - kernel-devel
+          - zstd
         state: latest
         update_cache: true
 
