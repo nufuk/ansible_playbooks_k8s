@@ -54,18 +54,6 @@
         group: nufuk
       become: true
 
-    - name: Download helm tool
-      ansible.builtin.get_url:
-        url: "{{ helm_url }}"
-        dest: "/tmp/helm-linux-amd64.tar.gz"
-        mode: '0644'
-
-    - name: Download argocd tool
-      ansible.builtin.get_url:
-        url: "{{ argocd_url }}"
-        dest: "/tmp/argocd-linux-amd64"
-        mode: '0644'
-
     - name: Install ArgoCD binary using install command
       ansible.builtin.command:
         cmd: install -m 555 /tmp/argocd-linux-amd64 /usr/local/bin/argocd

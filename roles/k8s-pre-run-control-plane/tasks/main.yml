@@ -8,6 +8,18 @@
       poll: 15
       become: true
 
+    - name: Download helm tool
+      ansible.builtin.get_url:
+        url: "{{ helm_url }}"
+        dest: "/tmp/helm-linux-amd64.tar.gz"
+        mode: '0644'
+
+    - name: Download argocd tool
+      ansible.builtin.get_url:
+        url: "{{ argocd_url }}"
+        dest: "/tmp/argocd-linux-amd64"
+        mode: '0644'
+
     - name: Reboot the machine for kernel update
       ansible.builtin.reboot:
         msg: "Reboot initiated by Ansible"
