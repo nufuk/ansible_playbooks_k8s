@@ -64,11 +64,25 @@
       dest: /tmp/linstor-values.yaml
       mode: '0644'
 
+  - name: Kopiere das n8n deployment auf den Server
+    ansible.builtin.copy:
+      src: linstor-values.yaml
+      dest: /tmp/linstor-values.yaml
+      mode: '0644'
+
   - name: Kopiere die ollama.yml auf den Server
     ansible.builtin.copy:
       src: ollama.yml
       dest: /tmp/ollama.yml
       mode: '0644'
+
+  - name: apply n8n manifest
+    ansible.builtin.shell: "sudo kubectl apply -f /tmp/n8n-deployment"
+    register: n8n_deployment
+    #changed_when: "'created' in kubectl_apply.stdout or 'configured' in kubectl_apply.stdout"
+    #retries: 3
+    #delay: 10
+
 
 #  - name: apply ollama manifest
 #    ansible.builtin.shell: "sudo kubectl apply -n argocd --server-side --force-conflicts -f {{ argocd_manifest_url }}"
